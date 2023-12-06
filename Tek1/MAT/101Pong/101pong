@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+
+##
+## EPITECH PROJECT, 2022
+## 101pong
+## File description:
+## 101pong
+##
+
+from math import *
+import sys
+
+def get_velocity(x0, y0, z0, x1, y1, z1, n):
+    vx = x1 - x0
+    vy = y1 - y0
+    vz = z1 - z0
+
+    return (vx, vy, vz)
+
+def velocity(x0, y0, z0, x1, y1, z1, n):
+    vx = x1 - x0
+    vy = y1 - y0
+    vz = z1 - z0
+
+    print("The velocity vector of the ball is:")
+    print("({:.2f}, {:.2f}, {:.2f})".format(vx, vy, vz))
+    return (vx, vy, vz)
+
+def coo_at_time(x0, y0, z0, x1, y1, z1, n):
+    px = x1 + n * (x1 - x0)
+    py = y1 + n * (y1 - y0)
+    pz = z1 + n * (z1 - z0)
+
+    print(f"At time t + {int(n)}, ball coordinates will be:")
+    print("({:.2f}, {:.2f}, {:.2f})".format(px, py, pz))
+
+def angle(x0, y0, z0, x1, y1, z1, n):
+    v = get_velocity(x0, y0, z0, x1, y1, z1, n)
+
+    if z1 == 0:
+        print("The incidence angle is:\n0.00 degrees")
+        sys.exit(0)
+    ti = degrees(acos(sqrt(v[0]**2 + v[1]**2) / sqrt(v[0]**2 + v[1]**2 + v[2]**2)))
+    if (z1 < 0 and v[2] <= 0) or (z1 >= 0 and v[2] >= 0):
+        print("The ball won't reach the paddle.")
+        sys.exit(84)
+    else:
+        print("The incidence angle is:")
+        print("{:.2f} degrees".format(ti))
+        sys.exit(0)
+
+def help():
+    print("USAGE")
+    print("    ./101pong x0 y0 z0 x1 y1 z1 n")
+    print("")
+    print("DESCRIPTION")
+    print("    x0  ball abscissa at time t - 1")
+    print("    y0  ball ordinate at time t - 1")
+    print("    z0  ball altitude at time t - 1")
+    print("    x1  ball abscissa at time t")
+    print("    y1  ball ordinate at time t")
+    print("    z1  ball altitude at time t")
+    print("    n   time shift (greater than or equal to zero, integer)")
+
+if sys.argv[1] == "-h" and len(sys.argv) == 2:
+    help()
+    sys.exit(0)
+try:
+    x0 = float(sys.argv[1])
+    y0 = float(sys.argv[2])
+    z0 = float(sys.argv[3])
+    x1 = float(sys.argv[4])
+    y1 = float(sys.argv[5])
+    z1 = float(sys.argv[6])
+    n = float(sys.argv[7])
+except:
+    sys.exit(84)
+
+if len(sys.argv) != 8 or float(sys.argv[7]) < 0 or float(sys.argv[7]) % 1 != 0:
+    sys.exit(84)
+else:
+    velocity(x0, y0, z0, x1, y1, z1, n)
+    coo_at_time(x0, y0, z0, x1, y1, z1, n)
+    angle(x0, y0, z0, x1, y1, z1, n)

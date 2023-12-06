@@ -1,0 +1,9 @@
+/build
+*.o
+mysh
+mysh_copy
+/.vscode
+test.c
+a.out
+segfault.c
+divzero.c

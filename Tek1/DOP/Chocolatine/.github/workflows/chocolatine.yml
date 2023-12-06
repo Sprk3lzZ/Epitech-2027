@@ -1,0 +1,97 @@
+name: Mon petit pain
+on:
+  push:
+    branches-ignore:
+      - 'ga-ignore-**'
+  pull_request:
+    types: [opened]
+    branches-ignore:
+      - 'ga-ignore-**'
+
+jobs:
+  check_coding_style:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Run coding style checker
+        run: check.sh $(pwd) $(pwd)
+
+      - name: Test Coding Style
+        run: |
+          while read line
+          do
+            file=$(echo $line | cut -d ':' -f 1)
+            line_num=$(echo $line | cut -d ':' -f 2)
+            level=$(echo $line | cut -d ':' -f 3)
+            code=$(echo $line | cut -d ':' -f 4)
+            echo "::error file=$file,line=$line_num,title=$level coding style error::$code";
+          done < $(pwd)/coding-style-reports.log
+
+      - name: Check if coding style is ok
+        run: |
+          if test -s coding-style-reports.log; then
+            exit 1
+          fi
+  
+  check_program_compilation:
+    needs: check_coding_style
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Make
+        timeout-minutes: 2
+        run: make
+
+      - name: Make clean
+        run: make clean
+
+      - name: Verify executables
+        run: |
+          for executables in ${EXECUTABLES//,/ }; do
+            if [ ! -x "$executables" ]; then
+              echo "::error file=$executables,title=Executable problem::This executable does not exist or is not executable"
+              exit 1
+            fi
+          done
+
+  run_tests:
+    needs: check_program_compilation
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Run unit tests
+        timeout-minutes: 2
+        run: make tests_run
+
+  push_to_mirror:
+    needs: run_tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@github.com:EpitechPromo2027/B-DOP-200-LIL-2-1-chocolatine-yanis.zeghiche.git
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}

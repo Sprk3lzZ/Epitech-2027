@@ -1,0 +1,8 @@
+*.o
+cesar
+/build
+text
+text2
+crypt
+*~
+#*#

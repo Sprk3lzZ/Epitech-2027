@@ -1,0 +1,70 @@
+#TODO: Add env variable & dockerignore
+version: '3'
+
+services:
+  poll:
+    build: poll
+    ports:
+      - "5000:80"
+    restart: on-failure
+    depends_on:
+      - redis
+    networks:
+      - poll-tier
+    environment:
+      - REDIS=redis
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    networks:
+      - poll-tier
+      - back-tier
+    environment:
+      - REDIS_HOSTNAME=redis
+
+  worker:
+    build: worker
+    restart: on-failure
+    depends_on:
+      - redis
+      - db
+    networks:
+      - back-tier
+    environment:
+      - DB_HOSTNAME=db
+
+  db:
+    image: postgres:9.4
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: on-failure
+    networks:
+      - result-tier
+      - back-tier
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  result:
+    build: result
+    ports:
+      - "5001:80"
+    restart: on-failure
+    depends_on:
+      - db
+    networks:
+      - result-tier
+    environment:
+      - DB_HOSTNAME=db
+
+networks:
+  poll-tier:
+  result-tier:
+  back-tier:
+
+volumes:
+  db-data:
