@@ -11,9 +11,14 @@ Student::Student(std::string name)
 {
     this->name = name;
     this->energy = 100;
+
+    std::cout << "Student " << name << " I'm ready to lean C++" << std::endl;
 }
 
-Student::~Student() {}
+Student::~Student()
+{
+    std::cout << "Student " << name << " Wow, much learning today, very smart, such C++" << std::endl;
+}
 
 bool Student::learn(std::string sentence)
 {
