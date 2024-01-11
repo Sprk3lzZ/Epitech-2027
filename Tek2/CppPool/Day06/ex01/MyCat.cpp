@@ -10,30 +10,33 @@
 #include <string>
 #include <fstream>
 
-int MyCat(int ac, char **av)
+bool MyCat(int ac, char **av)
 {
     std::string line;
     std::ifstream file;
+    bool status = true;
 
     if (ac == 1) {
         std::cout << "MyCat: Usage: ./MyCat file [...]" << std::endl;
-        return 84;
+        status = false;
     }
     for (int i = 1; i < ac; i++) {
         file.open(av[i]);
         if (!file.is_open()) {
             std::cout << "MyCat: " << av[i] << ": No such file or directory" << std::endl;
-            return 84;
+            status = false;
         }
         while (getline(file, line)) {
             std::cout << line << std::endl;
         }
         file.close();
     }
-    return 0;
+    return status;
 }
 
 int main(int ac, char **av)
 {
-    return (MyCat(ac, av));
+    if (!MyCat(ac, av))
+        return 84;
+    return 0;
 }
