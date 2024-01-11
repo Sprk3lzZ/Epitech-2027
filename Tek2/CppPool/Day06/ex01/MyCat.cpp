@@ -17,13 +17,13 @@ bool MyCat(int ac, char **av)
     bool status = true;
 
     if (ac == 1) {
-        std::cout << "MyCat: Usage: ./MyCat file [...]" << std::endl;
+        std::cerr << "MyCat: Usage: ./MyCat file [...]" << std::endl;
         status = false;
     }
     for (int i = 1; i < ac; i++) {
         file.open(av[i]);
         if (!file.is_open()) {
-            std::cout << "MyCat: " << av[i] << ": No such file or directory" << std::endl;
+            std::cerr << "MyCat: " << av[i] << ": No such file or directory" << std::endl;
             status = false;
         }
         while (getline(file, line)) {
